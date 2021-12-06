@@ -240,6 +240,173 @@ function dayThreeii() {
   );
 }
 
+function dayFour() {
+  let file = readFile("./input4.txt");
+
+  // Array.prototype.shift() removes and returns the first element of an array
+  let numbersToBeCalled = file.shift().split(",");
+  // pop the extra empty line
+  file.shift();
+
+  let boards = [];
+  let boardNo = 0;
+  file.forEach((line) => {
+    if (line === "") {
+      boardNo += 1;
+      return;
+    }
+
+    if (!boards[boardNo]) {
+      boards.push([]);
+    }
+    boards[boardNo].push(line);
+  });
+
+  boards.forEach((board, index) => {
+    boards[index] = convertBingoBoard(board);
+  });
+
+  // Now that the boards have been configured, loop through the called numbers until one of the arrays within a board is length == 0
+  let lastNumCalled = null;
+  let winningBoard = null;
+  numbersToBeCalled.forEach((numCalled) => {
+    boards.forEach((bingoBoard) => {
+      bingoBoard.forEach((subArray) => {
+        if (!lastNumCalled) {
+          popOut(subArray, numCalled);
+          if (subArray.length === 0 && !lastNumCalled) {
+            lastNumCalled = numCalled;
+            winningBoard = bingoBoard;
+            return;
+          }
+        }
+      });
+    });
+    if (!lastNumCalled) {
+      return;
+    }
+  });
+
+  console.log(lastNumCalled);
+  console.log("Winning Board: ", winningBoard);
+  console.log(
+    "Answer: ",
+    winningBoard[0].reduce((prev, num) => {
+      return parseInt(prev) + parseInt(num);
+    }) * lastNumCalled
+  );
+}
+
+function dayFourii() {
+  let file = readFile("./input4.txt");
+
+  // Array.prototype.shift() removes and returns the first element of an array
+  let numbersToBeCalled = file.shift().split(",");
+  // pop the extra empty line
+  file.shift();
+
+  let boards = [];
+  let boardNo = 0;
+  file.forEach((line) => {
+    if (line === "") {
+      boardNo += 1;
+      return;
+    }
+
+    if (!boards[boardNo]) {
+      boards.push([]);
+    }
+    boards[boardNo].push(line);
+  });
+
+  boards.forEach((board, index) => {
+    boards[index] = convertBingoBoard(board);
+  });
+
+  let lastNumCalled = null;
+  let winningBoard = null;
+  let tempArray = [];
+  numbersToBeCalled.forEach((numCalled) => {
+    tempArray = [];
+    boards.forEach((bingoBoard, boardIndex) => {
+      bingoBoard.forEach((subArray) => {
+        if (!lastNumCalled) {
+          popOut(subArray, numCalled);
+          if (subArray.length === 0) {
+            // console.log(
+            //   "THIS IS A WINNER: ",
+            //   boards[boardIndex],
+            //   "\nLast num: ",
+            //   numCalled,
+            //   "\nBoards Remaining:",
+            //   boards,
+            //   "REMOVING",
+            //   boardIndex
+            // );
+            tempArray.push(boardIndex);
+            // Really more of a losing board, but I copied the day4 function as a starting point lol
+          }
+        }
+      });
+    });
+    tempArray = tempArray.reverse();
+    tempArray.forEach((el) => {
+      winningBoard = boards.splice(el, 1);
+    });
+    if (boards.length === 0 && !lastNumCalled) {
+      lastNumCalled = numCalled;
+    }
+  });
+
+  console.log("Last Num Called: ", lastNumCalled);
+  console.log("Losing Board: ", winningBoard[0]);
+  console.log(
+    "Answer: ",
+    winningBoard[0][0].reduce((prev, num) => {
+      return parseInt(prev) + parseInt(num);
+    }) * lastNumCalled
+  );
+}
+
+function dayFive() {
+  let file = readFile("./input5.txt");
+
+  // Create a 1000 x 1000 grid (eyeballing based on none of the input values beeing > 1000)
+
+  let grid = new Array(1000).fill(new Array(1000).fill(0));
+
+  file.forEach((el, index) => (file[index] = el.split(" -> ")));
+  file.forEach((el) => {
+    el.forEach((ele, index) => {
+      el[index] = ele.split(",");
+    });
+  });
+  let y, x, temp;
+  let debug = [];
+  file.forEach((navigationPair) => {
+    // Only straight lines
+    if (navigationPair[0][0] === navigationPair[1][0]) {
+      // X values match
+      x = parseInt(navigationPair[0][0]);
+      temp = [navigationPair[0][1], navigationPair[1][1]];
+      temp.sort();
+      y = parseInt(temp[0]) - 1;
+
+      while (y < parseInt(temp[1])) {
+        // For some reason this is assigning in increments instead of incrementing the # at grid[y][x]
+        grid[y][x] = grid[y][x] + 1;
+        console.log(`${y}, ${x}: ${grid[y][x]}`);
+        y++;
+      }
+      // for (y = parseInt(temp[0]) - 1; y < parseInt(temp[1]); y++) {
+      //   grid[y][x]++;
+      // }
+    }
+  });
+  // console.log(file);
+  console.log(file[0]);
+}
+
 // Utility Functions
 
 // @readFile returns input file as array splitting the file by lines
@@ -263,4 +430,46 @@ function convertBinary(inputBinary) {
   return total;
 }
 
-dayThreeii();
+//@convertBingoBoard takes an array of length 5 with 5 numbers in each string of the array and converts it to an easier to check for BINGO array
+function convertBingoBoard(boardArray) {
+  // 5 rows, 5 columns, and 2 diagonals to check for bingo - first element is the array of all numbers
+  let newBoard = [[], [], [], [], [], [], [], [], [], [], [], [], []];
+  boardArray.forEach((row, i) => {
+    row = row.split(" ");
+    // Sorting before pushing into array rearranges the board 4head 🤦🏻‍♂️
+    // row.sort();
+    // while (row.length > 5) {
+    //   row.shift();
+    // }
+
+    row.forEach((el) => {
+      if (el === "") {
+        popOut(row, el);
+      }
+    });
+
+    row.forEach((number, j) => {
+      newBoard[0].push(number);
+      newBoard[1 + i].push(number);
+      newBoard[6 + j].push(number);
+      if (i == j) {
+        newBoard[11].push(number);
+      }
+      if (i + j == 4) {
+        newBoard[12].push(number);
+      }
+    });
+  });
+  return newBoard;
+}
+
+// @popOut will take an array and the value to find and pop
+function popOut(arrayIn, popValue) {
+  let index = arrayIn.indexOf(popValue);
+  if (index !== -1) {
+    arrayIn.splice(index, 1);
+  }
+  // Note that you don't need to return the array because splice mutates the original string
+}
+
+dayFive();
