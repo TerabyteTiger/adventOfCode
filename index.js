@@ -369,11 +369,16 @@ function dayFourii() {
 }
 
 function dayFive() {
+  // @ Use '-debug' to access the debugging file
   let file = readFile("./input5.txt");
 
-  // Create a 1000 x 1000 grid (eyeballing based on none of the input values beeing > 1000)
+  // Create a 1000 x 1000 grid (eyeballing based on none of the input values being > 1000)
+  let grid = new Array(1000);
 
-  let grid = new Array(1000).fill(new Array(1000).fill(0));
+  // Need to loop over when creating the filler Arrays or the Arrays in each slot will be referring to the same array instance!
+  for (let i = 0; i < grid.length; i++) {
+    grid[i] = new Array(1000).fill(0);
+  }
 
   file.forEach((el, index) => (file[index] = el.split(" -> ")));
   file.forEach((el) => {
@@ -382,29 +387,170 @@ function dayFive() {
     });
   });
   let y, x, temp;
-  let debug = [];
+
   file.forEach((navigationPair) => {
     // Only straight lines
     if (navigationPair[0][0] === navigationPair[1][0]) {
       // X values match
       x = parseInt(navigationPair[0][0]);
-      temp = [navigationPair[0][1], navigationPair[1][1]];
-      temp.sort();
-      y = parseInt(temp[0]) - 1;
+      temp = [parseInt(navigationPair[0][1]), parseInt(navigationPair[1][1])];
+      temp.sort((a, b) => {
+        return a - b;
+      });
+      if (temp[0] > temp[1]) {
+        console.info("PROBLEM: ", temp);
+      }
+      y = parseInt(temp[0]);
 
-      while (y < parseInt(temp[1])) {
-        // For some reason this is assigning in increments instead of incrementing the # at grid[y][x]
+      while (y <= parseInt(temp[1])) {
         grid[y][x] = grid[y][x] + 1;
-        console.log(`${y}, ${x}: ${grid[y][x]}`);
         y++;
       }
-      // for (y = parseInt(temp[0]) - 1; y < parseInt(temp[1]); y++) {
-      //   grid[y][x]++;
-      // }
+    } else if (navigationPair[0][1] === navigationPair[1][1]) {
+      // Y values match
+      y = parseInt(navigationPair[0][1]);
+      temp = [parseInt(navigationPair[0][0]), parseInt(navigationPair[1][0])];
+      temp.sort((a, b) => {
+        return a - b;
+      });
+      x = parseInt(temp[0]);
+
+      while (x <= parseInt(temp[1])) {
+        grid[y][x] = grid[y][x] + 1;
+        x++;
+      }
     }
   });
-  // console.log(file);
-  console.log(file[0]);
+
+  let count = 0;
+
+  let flatArray = grid.flat();
+
+  let regexCommas = /,/g;
+
+  let regexZeros = /0/g;
+
+  outputFile(grid.join("\n").replace(regexCommas, "").replace(regexZeros, "."));
+
+  console.log(flatArray.filter((el) => el >= 2).length);
+}
+
+function dayFiveii() {
+  // @ Use '-debug' to access the debugging file
+  let file = readFile("./input5.txt");
+
+  // Create a 1000 x 1000 grid (eyeballing based on none of the input values being > 1000)
+  let grid = new Array(1000);
+
+  // Need to loop over when creating the filler Arrays or the Arrays in each slot will be referring to the same array instance!
+  for (let i = 0; i < grid.length; i++) {
+    grid[i] = new Array(1000).fill(0);
+  }
+
+  file.forEach((el, index) => (file[index] = el.split(" -> ")));
+  file.forEach((el) => {
+    el.forEach((ele, index) => {
+      el[index] = ele.split(",");
+    });
+  });
+  let y, x, temp;
+
+  file.forEach((navigationPair) => {
+    // Only straight lines
+    if (navigationPair[0][0] === navigationPair[1][0]) {
+      // X values match
+      x = parseInt(navigationPair[0][0]);
+      temp = [parseInt(navigationPair[0][1]), parseInt(navigationPair[1][1])];
+      temp.sort((a, b) => {
+        return a - b;
+      });
+      if (temp[0] > temp[1]) {
+        console.info("PROBLEM: ", temp);
+      }
+      y = parseInt(temp[0]);
+
+      while (y <= parseInt(temp[1])) {
+        grid[y][x] = grid[y][x] + 1;
+        y++;
+      }
+    } else if (navigationPair[0][1] === navigationPair[1][1]) {
+      // Y values match
+      y = parseInt(navigationPair[0][1]);
+      temp = [parseInt(navigationPair[0][0]), parseInt(navigationPair[1][0])];
+      temp.sort((a, b) => {
+        return a - b;
+      });
+      x = parseInt(temp[0]);
+
+      while (x <= parseInt(temp[1])) {
+        grid[y][x] = grid[y][x] + 1;
+        x++;
+      }
+    } else if (
+      (navigationPair[0][0] - navigationPair[1][0]) /
+        (navigationPair[0][1] - navigationPair[1][1]) ==
+      1
+    ) {
+      // 45 degree angle down and right
+      temp = [parseInt(navigationPair[0][1]), parseInt(navigationPair[1][1])];
+      temp.sort((a, b) => {
+        return a - b;
+      });
+      y = parseInt(temp[0]);
+
+      temp = [parseInt(navigationPair[0][0]), parseInt(navigationPair[1][0])];
+      temp.sort((a, b) => {
+        return a - b;
+      });
+      x = parseInt(temp[0]);
+
+      while (x <= parseInt(temp[1])) {
+        grid[y][x] = grid[y][x] + 1;
+        x++;
+        y++;
+      }
+    } else {
+      // 45 degree angle up and right
+      temp = [parseInt(navigationPair[0][1]), parseInt(navigationPair[1][1])];
+      temp.sort((a, b) => {
+        return b - a;
+      });
+      y = parseInt(temp[0]);
+
+      temp = [parseInt(navigationPair[0][0]), parseInt(navigationPair[1][0])];
+      temp.sort((a, b) => {
+        return a - b;
+      });
+      x = parseInt(temp[0]);
+
+      while (x <= parseInt(temp[1])) {
+        grid[y][x] = grid[y][x] + 1;
+        x++;
+        y--;
+      }
+    }
+  });
+
+  let count = 0;
+
+  let flatArray = grid.flat();
+
+  let regexCommas = /,/g;
+
+  let regexZeros = /0/g;
+
+  outputFile(grid.join("\n").replace(regexCommas, "").replace(regexZeros, "."));
+
+  console.log(flatArray.filter((el) => el >= 2).length);
+}
+
+function daySix() {
+  // Create 2 arrays
+  // one is all lantern fish
+  // loop through the first array
+  // iff value == 0, add a new fish to the second array
+  // after reaching the end, spread opperator the two arrays together
+  // repeat for # of days
 }
 
 // Utility Functions
@@ -413,6 +559,12 @@ function dayFive() {
 function readFile(inputFile) {
   let file = fs.readFileSync(inputFile, "utf8");
   return file.split("\r\n");
+}
+
+function outputFile(outputContents) {
+  let file = fs.writeFile("./output.txt", outputContents, (err) =>
+    console.error(err)
+  );
 }
 
 // @convertBinary takes a binary number input and returns the base 10 value
@@ -472,4 +624,4 @@ function popOut(arrayIn, popValue) {
   // Note that you don't need to return the array because splice mutates the original string
 }
 
-dayFive();
+dayFiveii();
