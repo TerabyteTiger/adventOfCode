@@ -551,6 +551,86 @@ function daySix() {
   // iff value == 0, add a new fish to the second array
   // after reaching the end, spread opperator the two arrays together
   // repeat for # of days
+  const DAYS = 80;
+
+  let file = readFile("./input6.txt");
+
+  let fishes = file[0].split(",");
+  let babyFeesh = [];
+
+  for (var i = 0; i < DAYS; i++) {
+    fishes.forEach((feesh, index) => {
+      if (parseInt(feesh) === 0) {
+        babyFeesh.push(8);
+        fishes[index] = 6;
+      } else {
+        fishes[index] = parseInt(feesh) - 1;
+      }
+    });
+
+    fishes = [...fishes, ...babyFeesh];
+    babyFeesh = [];
+  }
+
+  console.log("There are ", fishes.length, " feeshes");
+}
+
+function daySixii() {
+  // Sooooo there's hella fish here
+  // Like, enough to crash my RAM apparently
+  // So for each fish, I'll see how many fish we end up with
+  // #MATH!
+
+  const DAYS = 256;
+
+  let file = readFile("./input6.txt");
+
+  let fishes = file[0].split(",");
+
+  let catalog = {
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+    7: 0,
+    8: 0,
+  };
+
+  fishes.forEach((feesh) => {
+    catalog[feesh] = catalog[feesh] + 1;
+  });
+
+  let temp0 = 0;
+
+  for (var i = 0; i < DAYS; i++) {
+    temp0 = catalog[0];
+    catalog[0] = catalog[1];
+    catalog[1] = catalog[2];
+    catalog[2] = catalog[3];
+    catalog[3] = catalog[4];
+    catalog[4] = catalog[5];
+    catalog[5] = catalog[6];
+    catalog[6] = catalog[7] + temp0;
+    catalog[7] = catalog[8];
+    catalog[8] = temp0;
+  }
+
+  console.log(
+    "There are ",
+    catalog[0] +
+      catalog[1] +
+      catalog[2] +
+      catalog[3] +
+      catalog[4] +
+      catalog[5] +
+      catalog[6] +
+      catalog[7] +
+      catalog[8],
+    " feeshes"
+  );
 }
 
 // Utility Functions
@@ -624,4 +704,4 @@ function popOut(arrayIn, popValue) {
   // Note that you don't need to return the array because splice mutates the original string
 }
 
-dayFiveii();
+daySixii();
