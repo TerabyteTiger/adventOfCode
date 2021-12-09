@@ -633,6 +633,45 @@ function daySixii() {
   );
 }
 
+function daySeven() {
+  let file = readFile("./input7.txt")[0].split(",");
+
+  file.sort();
+
+  let mostCommon = median(file);
+
+  let totalFuelUsed = 0;
+
+  file.forEach((submarine) => {
+    totalFuelUsed =
+      totalFuelUsed + Math.abs(parseInt(submarine) - parseInt(mostCommon));
+  });
+
+  console.log("Most common: ", mostCommon);
+  console.log("Fuel Used: ", totalFuelUsed);
+}
+
+function daySevenii() {
+  let file = readFile("./input7.txt")[0].split(",");
+
+  file.sort();
+
+  let mostCommon = Math.floor(mean(file)); // Try for both ceil and floor
+
+  // Double checked this with the subreddit - this mathematically will always get you close to the result, but not necessarily the correct answer it seems.
+
+  let totalFuelUsed = 0;
+
+  file.forEach((submarine) => {
+    totalFuelUsed =
+      totalFuelUsed +
+      summation(Math.abs(parseInt(submarine) - parseInt(mostCommon)));
+  });
+
+  console.log("Most common: ", mostCommon);
+  console.log("Fuel Used: ", totalFuelUsed);
+}
+
 // Utility Functions
 
 // @readFile returns input file as array splitting the file by lines
@@ -704,4 +743,69 @@ function popOut(arrayIn, popValue) {
   // Note that you don't need to return the array because splice mutates the original string
 }
 
-daySixii();
+// @mode will take an array and return the element that appears most often.
+// @mode was stolen from this SO post: https://stackoverflow.com/questions/1053843/get-the-element-with-the-highest-occurrence-in-an-array
+function mode(array) {
+  // My gut feeling is that the most common element will be the most optimal "column" to align to for day 7
+  // As it turns out this is not true because the most common value was 0 😅 I believe this is true if the value is more centralized
+  if (array.length == 0) return null;
+  var modeMap = {};
+  var maxEl = array[0],
+    maxCount = 1;
+  for (var i = 0; i < array.length; i++) {
+    var el = array[i];
+    if (modeMap[el] == null) modeMap[el] = 1;
+    else modeMap[el]++;
+    if (modeMap[el] > maxCount) {
+      maxEl = el;
+      maxCount = modeMap[el];
+    }
+  }
+  console.log(modeMap);
+  return maxEl;
+}
+
+// @mean will take an array of integers and return the average value
+function mean(array) {
+  let total = 0;
+  array.forEach((el) => {
+    total += parseInt(el);
+  });
+  return total / array.length;
+}
+
+// @median will take an array of integers and return the middle most value present
+function median(array) {
+  temp = [...array];
+  temp.sort((a, b) => {
+    return a - b;
+  });
+
+  while (temp.length > 2) {
+    temp.pop();
+    temp.shift();
+  }
+  if (temp.length == 2) {
+    console.log(
+      "There are 2 values available for the median: ",
+      temp[0],
+      " and ",
+      temp[1]
+    );
+  }
+  return temp[0];
+}
+
+// @summation takes an integer and adds that value and every integer smaller until 0 is reached, and returns the result
+function summation(value) {
+  let total = 0;
+
+  while (value > 0) {
+    total += parseInt(value);
+    value = parseInt(value) - 1;
+  }
+
+  return total;
+}
+
+daySevenii();
